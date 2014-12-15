@@ -62,7 +62,12 @@ static void lcd_set_contrast();
 static void lcd_control_retract_menu();
 static void lcd_sdcard_menu();
 
+static void lcd_changefil_menu();
+
 static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
+
+void release_filament();
+void extrude_filament();
 
 /* Different types of actions that can be used in menu items. */
 static void menu_action_back(menuFunc_t data);
@@ -587,6 +592,7 @@ static void lcd_prepare_menu()
     //}
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+	MENU_ITEM(submenu, "Change Filament", lcd_changefil_menu);
     END_MENU();
 }
 
@@ -750,6 +756,33 @@ static void lcd_move_menu()
     MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
     //TODO:X,Y,Z,E
     END_MENU();
+}
+
+static void lcd_changefil_menu()
+{
+	START_MENU();
+	MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+	MENU_ITEM(function, "Release Filament", release_filament);
+	MENU_ITEM(function, "Extrude Filament", extrude_filament);
+	END_MENU();
+}
+
+void release_filament()
+{
+	//#ifdef DELTA
+	current_position[E_AXIS] += 500;
+	calculate_delta(current_position);
+	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], 6000/60, active_extruder);
+	//#endif
+}
+
+void extrude_filament()
+{
+	//#ifdef DELTA
+	current_position[E_AXIS] -= 500;
+	calculate_delta(current_position);
+	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], 6000/60, active_extruder);
+	//#endif
 }
 
 static void lcd_control_menu()
