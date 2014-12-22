@@ -247,4 +247,9 @@ extern void digipot_i2c_set_current( int channel, float current );
 extern void digipot_i2c_init();
 #endif
 
+
+//Rapduch
+extern bool inserted_filament;
+
+
 #endif

@@ -67,7 +67,7 @@ static void lcd_changefil_menu();
 static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
 
 void release_filament();
-void extrude_filament();
+void insert_filament();
 
 /* Different types of actions that can be used in menu items. */
 static void menu_action_back(menuFunc_t data);
@@ -591,8 +591,10 @@ static void lcd_prepare_menu()
         //MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
     //}
 #endif
-    MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+#ifdef CHANGE_FILAMENT
 	MENU_ITEM(submenu, "Change Filament", lcd_changefil_menu);
+#endif
+    MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);	
     END_MENU();
 }
 
@@ -763,26 +765,42 @@ static void lcd_changefil_menu()
 	START_MENU();
 	MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
 	MENU_ITEM(function, "Release Filament", release_filament);
-	MENU_ITEM(function, "Extrude Filament", extrude_filament);
+	MENU_ITEM(function, "Insert Filament", insert_filament);
 	END_MENU();
 }
 
 void release_filament()
 {
-	//#ifdef DELTA
-	current_position[E_AXIS] += 500;
+	//bowden_length needs to be 
+	//No need to check if done
+	#ifdef DELTA
+	current_position[E_AXIS] -= EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS],  300/60, active_extruder);
+	
+	current_position[E_AXIS] -= (BOWDEN_LENGTH+50);//Fast Extrusion
 	calculate_delta(current_position);
-	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], 6000/60, active_extruder);
-	//#endif
+	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS],  6000/60, active_extruder);
+	#endif
+	
+	inserted_filament=false;
 }
 
-void extrude_filament()
-{
-	//#ifdef DELTA
-	current_position[E_AXIS] -= 500;
-	calculate_delta(current_position);
-	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], 6000/60, active_extruder);
-	//#endif
+void insert_filament()
+{	
+	// Check if already done once
+	if (!inserted_filament)
+	{
+		#ifdef DELTA
+		current_position[E_AXIS] += (BOWDEN_LENGTH+10);
+		calculate_delta(current_position);
+		plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], 6000/60, active_extruder);
+	
+		current_position[E_AXIS] += EXTRUDER_LENGTH;//Extra extrusion at low feedrate
+		plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS],  150/60, active_extruder);
+		#endif
+		inserted_filament=true;
+	}
+	
 }
 
 static void lcd_control_menu()

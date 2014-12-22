@@ -109,7 +109,7 @@
 #define DELTA_DIAGONAL_ROD 183.3 // mm //original 180
 
 // Horizontal offset from middle of printer to smooth rod center.
-#define DELTA_SMOOTH_ROD_OFFSET 144 // mm // original 142.66
+#define DELTA_SMOOTH_ROD_OFFSET 144.5 // mm // original 142.66
 
 // Horizontal offset of the universal joints on the end effector.
 #define DELTA_EFFECTOR_OFFSET 24.03 // mm                   
@@ -257,7 +257,7 @@
 //can be software-disabled for whatever purposes by
 #define PREVENT_DANGEROUS_EXTRUDE
 //if PREVENT_DANGEROUS_EXTRUDE is on, you can still disable (uncomment) very long bits of extrusion separately.
-#define PREVENT_LENGTHY_EXTRUDE
+//#define PREVENT_LENGTHY_EXTRUDE
 
 #define EXTRUDE_MINTEMP 150
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
@@ -462,6 +462,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HOTEND_TEMP 260
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+
+//rapduch
+#define CHANGE_FILAMENT //Creates a menu option to help changing the filament on printers with BOWDEN
+#define BOWDEN_LENGTH 550
+#define EXTRUDER_LENGTH 60
+
 
 //LCD and SD support
 //#define ULTRA_LCD  //general lcd support, also 16x2
